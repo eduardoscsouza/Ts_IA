@@ -1,13 +1,30 @@
 #include <vector>
 #include <queue>
 #include <map>
-#include <tuple>
 #include <functional>
-
-#define INF 0x3f3f3f3f
 
 using namespace std;
 
+
+
+void deterministic (int origin, int destiny, int aux, int quantity, vector<pair<int, int> >& sol) {
+  if(quantity == 1) sol.push_back(make_pair(origin, destiny));
+  else {
+    deterministic(origin, aux, destiny, quantity-1, sol);
+    deterministic(origin, destiny, aux, 1, sol);
+    deterministic(aux, destiny, origin, quantity-1, sol);
+  }
+}
+
+
+
+//checks if the state is final
+bool isFinal (vector<int> estado, int n, int m) {
+	for (int i = 0; i < n; i++)
+		if (estado[i] != m-1) return false;
+
+	return true;
+}
 
 /*
 void bfs (int n, int m) {
@@ -54,7 +71,12 @@ void bfs (int n, int m) {
 
 
 //calculates the heuristic cost
-int heur1 (vector <int> estado) {
+int heur_null (vector<int> estado) {
+	return 0;
+}
+
+//calculates the heuristic cost
+int heur1 (vector<int> estado) {
 	map <int, int> mapa;
 	for (int i = 0; i < estado.size(); i++)
 		mapa[estado[i]]++;
@@ -66,16 +88,8 @@ int heur1 (vector <int> estado) {
 	return sum;
 }
 
-//checks if the state is final
-bool isFinal (vector<int> estado, int n, int m) {
-	for (int i = 0; i < n; i++)
-		if (estado[i] != m-1) return false;
-
-	return true;
-}
-
 //executes A* to find shortest path to the state
-int aStar (int n, int m, function<int(vector<int>)> heur) {
+vector<pair<int, int> > aStar (int n, int m, function<int(vector<int>)> heur) {
 	//maps to store movements tree and distances
 	map < vector<int>, pair<int, int> > pai;
 	map < vector<int>, int > distancia;
@@ -92,27 +106,27 @@ int aStar (int n, int m, function<int(vector<int>)> heur) {
 	fila.emplace(0, estado_inicial);
 
 	//auxiliar variables
-	int d;
+	int dist;
 	vector <int> estado_atual(n);
 	vector <int> novo_estado(n);
 	vector <bool> estaca(m);
 	while (!fila.empty()) {
-		//getting the distace d from the initial state to the actual state
-		tie (d, estado_atual) = fila.top();
+		//getting the distace d from the initial state to the current state
+		estado_atual = fila.top().second;
+		dist = distancia[estado_atual];
 		fila.pop();
 
 		//checking if it is a final state
 		if (isFinal(estado_atual, n, m)) {
-			printf("Movimentos %d\n", distancia[estado_atual]);
-
-			//printing the way to get to the final state
-			while (pai[estado_atual] != make_pair(-1, -1)) {
-				pair<int, int> par = pai[estado_atual];
-				printf("sai da estaca %d entra na estaca %d\n", par.second, estado_atual[par.first]);
-				estado_atual[par.first] = par.second;
+			//storing the way to get to the final state
+			vector<pair<int, int> > sol(dist);
+			while (pai[estado_atual] != make_pair(-1, -1)){
+				pair<int, int> aux_pai = pai[estado_atual];
+				sol[--dist] = make_pair(aux_pai.second, estado_atual[aux_pai.first]);
+				estado_atual[aux_pai.first] = aux_pai.second;
 			}
-			
-			return 0;
+
+			return sol;
 		}
 
 		//vector of visited pegspegs
@@ -123,7 +137,6 @@ int aStar (int n, int m, function<int(vector<int>)> heur) {
 			//checking if the peg was already "used" by other disc
 			if (!estaca[estado_atual[i]]) {
 				estaca[estado_atual[i]] = true;
-
 				for (int j = 0; j < m; j++) {
 					//verifying if other iteration had already added movements coming out of this peg
 					if (estaca[j])
@@ -138,7 +151,7 @@ int aStar (int n, int m, function<int(vector<int>)> heur) {
 						continue;
 
 					//calculting the distance of the new state
-					distancia[novo_estado] = distancia[estado_atual] + 1;
+					distancia[novo_estado] = dist + 1;
 					pai[novo_estado] = make_pair(i, estado_atual[i]);
 
 					//inseting into the heap the distace + the preview of the future cost
@@ -148,15 +161,30 @@ int aStar (int n, int m, function<int(vector<int>)> heur) {
 		}
 	}
 
-	return -1;
+	vector<pair<int, int> > sol(0);
+	return sol;
+}
+
+
+
+void print_solution(vector<pair<int, int> > sol)
+{	
+	printf("%d movements\n", sol.size());
+	for(int i=0; i<sol.size(); i++)
+		printf("%d -> %d\n", sol[i].first, sol[i].second);
+	printf("\n");
 }
 
 
 
 int main (int argc, char * argv[]) {
 
+	vector<pair<int, int> > sol;
+	deterministic(0, 2, 1, 5, sol);
+	print_solution(sol);
 	//bfs(5, 3);
-	aStar (5, 3, &heur1);
+	sol = aStar (5, 3, &heur1);
+	print_solution(sol);
 
 	return 0;
 }
