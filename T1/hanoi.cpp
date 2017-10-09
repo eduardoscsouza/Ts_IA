@@ -4,6 +4,9 @@
 #include <map>
 #include <functional>
 
+#include <cstdio>
+#include <ctime>
+
 using namespace std;
 
 
@@ -108,25 +111,27 @@ vector<pair<int, int> > bfs (int n, int m) {
 
 
 //calculates the heuristic cost
-int heurNull (vector<int> estado) {
+int heurNull (vector<int> estado, int n, int m) {
 	return 0;
 }
 
 //calculates the heuristic cost
-int heur1 (vector<int> estado) {
-	map <int, int> mapa;
-	for (int i = 0; i < estado.size(); i++)
-		mapa[estado[i]]++;
+int heur1 (vector<int> estado, int n, int m) {
+	vector<int> aux_vect(m);
+	for (int i = 0; i < m; i++)
+		aux_vect[i] = 0;
+	for (unsigned long i = 0; i < estado.size(); i++)
+		aux_vect[estado[i]]++;
 
 	int sum = 0;
-	for (auto u : mapa)
-		sum += (u.second - 1) * 2;
+	for (int i = 0; i < m; i++)
+		sum += (aux_vect[i]- 1) * 2;
 
 	return sum;
 }
 
 //executes A* to find shortest path to the final state
-vector<pair<int, int> > aStar (int n, int m, function<int(vector<int>)> heur) {
+vector<pair<int, int> > aStar (int n, int m, function<int(vector<int>, int, int)> heur) {
 	//maps to store movements tree and distances
 	map < vector<int>, pair<int, int> > pai;
 	map < vector<int>, int > distancia;
@@ -192,7 +197,7 @@ vector<pair<int, int> > aStar (int n, int m, function<int(vector<int>)> heur) {
 					pai[novo_estado] = make_pair(i, estado_atual[i]);
 
 					//inseting into the heap the distace + the preview of the future cost
-					fila.emplace(distancia[novo_estado] + heur(novo_estado), novo_estado);
+					fila.emplace(distancia[novo_estado] + heur(novo_estado, n, m), novo_estado);
 				}
 			}
 		}
@@ -206,8 +211,8 @@ vector<pair<int, int> > aStar (int n, int m, function<int(vector<int>)> heur) {
 
 void printSolution(vector<pair<int, int> > sol)
 {	
-	printf("%d movements\n", sol.size());
-	for(int i=0; i<sol.size(); i++)
+	printf("%lu movements\n", sol.size());
+	for(unsigned i=0; i<sol.size(); i++)
 		printf("%d -> %d\n", sol[i].first, sol[i].second);
 	printf("\n");
 }
@@ -216,13 +221,36 @@ void printSolution(vector<pair<int, int> > sol)
 
 int main (int argc, char * argv[]) {
 
+	int n, m;
 	vector<pair<int, int> > sol;
-	deterministic(0, 2, 1, 4, sol);
-	printSolution(sol);
-	sol = bfs(4, 3);
-	printSolution(sol);
-	sol = aStar (4, 3, &heur1);
-	printSolution(sol);
+	clock_t time_diff;
+
+	n = 10;
+	m = 3;
+
+	time_diff = clock();
+	deterministic(0, 2, 1, n, sol);
+	time_diff = clock() - time_diff;
+	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol);
+
+	time_diff = clock();
+	sol = bfs(n, m);
+	time_diff = clock() - time_diff;
+	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol);
+
+	time_diff = clock();
+	sol = aStar (n, m, &heurNull);
+	time_diff = clock() - time_diff;
+	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol);
+
+	time_diff = clock();
+	sol = aStar (n, m, &heur1);
+	time_diff = clock() - time_diff;
+	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol);
 
 	return 0;
 }
