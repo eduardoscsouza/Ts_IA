@@ -109,7 +109,6 @@ vector<pair<int, int> > bfs (int n, int m) {
 
 
 
-
 //calculates the heuristic cost
 int heurNull (vector<int> estado, int n, int m) {
 	return 0;
@@ -225,14 +224,16 @@ int main (int argc, char * argv[]) {
 	vector<pair<int, int> > sol;
 	clock_t time_diff;
 
-	n = 10;
+	n = 5;
 	m = 3;
 
-	time_diff = clock();
-	deterministic(0, 2, 1, n, sol);
-	time_diff = clock() - time_diff;
-	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
-	//printSolution(sol);
+	if (m==3) {
+		time_diff = clock();
+		deterministic(0, 2, 1, n, sol);
+		time_diff = clock() - time_diff;
+		printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
+		//printSolution(sol);
+	}
 
 	time_diff = clock();
 	sol = bfs(n, m);
