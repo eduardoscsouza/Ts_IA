@@ -1,9 +1,7 @@
 #include <vector>
-#include <set>
 #include <queue>
 #include <map>
 #include <tuple>
-#include <iostream>
 #include <functional>
 
 #define INF 0x3f3f3f3f
@@ -96,6 +94,8 @@ int aStar (int n, int m, function<int(vector<int>)> heur) {
 	//auxiliar variables
 	int d;
 	vector <int> estado_atual(n);
+	vector <int> novo_estado(n);
+	vector <bool> estaca(m);
 	while (!fila.empty()) {
 		//getting the distace d from the initial state to the actual state
 		tie (d, estado_atual) = fila.top();
@@ -115,24 +115,25 @@ int aStar (int n, int m, function<int(vector<int>)> heur) {
 			return 0;
 		}
 
-		//set of pegs
-		set <int> estaca;
-		for (int i = 0; i < n; i++) {
-			//checking if the peg is in the set
-			if (estaca.count(estado_atual[i]) == 0) {
+		//vector of visited pegspegs
+		for (int i = 0; i < n; i++)
+			estaca[i] = false;
 
-				//inserting the peg into the set
-				estaca.insert(estado_atual[i]);
+		for (int i = 0; i < n; i++) {
+			//checking if the peg was already "used" by other disc
+			if (!estaca[estado_atual[i]]) {
+				estaca[estado_atual[i]] = true;
 
 				for (int j = 0; j < m; j++) {
-
-					if (estaca.count(j))
+					//verifying if other iteration had already added movements coming out of this peg
+					if (estaca[j])
 						continue;
 
 					//creating the new state
-					vector <int> novo_estado = estado_atual;
+					novo_estado = estado_atual;
 					novo_estado[i] = j;
 
+					//verifying of it hadn't passed through this state already 
 					if (distancia.count(novo_estado))
 						continue;
 
