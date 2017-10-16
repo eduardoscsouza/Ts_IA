@@ -236,6 +236,7 @@ int main (int argc, char * argv[]) {
 		time_diff = clock();
 		deterministic(0, 2, 1, n, sol);
 		time_diff = clock() - time_diff;
+		printf ("Deterministic:\t\t");
 		printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
 		//printSolution(sol);
 	}
@@ -243,18 +244,21 @@ int main (int argc, char * argv[]) {
 	time_diff = clock();
 	sol = bfs(n, m);
 	time_diff = clock() - time_diff;
+	printf ("Bfs:\t\t\t");
 	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol);
 
 	time_diff = clock();
 	sol = aStar (n, m, &heurNull);
 	time_diff = clock() - time_diff;
+	printf ("aStar (heurNull):\t");
 	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol);
 
 	time_diff = clock();
 	sol = aStar (n, m, &heur1);
 	time_diff = clock() - time_diff;
+	printf ("aStar (heur1):\t\t");
 	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol);
 
