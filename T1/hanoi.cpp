@@ -6,6 +6,7 @@
 
 #include <cstdio>
 #include <ctime>
+#include <cassert>
 
 using namespace std;
 
@@ -158,11 +159,34 @@ int heur2 (vector<int> estado, int n, int m) {
 	}
 
 	// runs faster without it        ????
+/*	if ( estado[n - 1] == (m - 1) )	return sum;
+
 	// have to move all discs out of the last peg
-/*
-	bool heavier_in_last = (estado[n - 1] == (m - 1));
-	if (!heavier_in_last) {
-		int i = m - 1;
+	int i = m - 1;
+	if (aux_vect[i] <= 1) {
+		sum += aux_vect[i];
+	} else {
+		int val = 2;
+		while (aux_vect[i]) {
+			int quant = min (aux_vect[i], m - 1);
+			sum += quant * val;
+			aux_vect[i] -= quant;
+			val++;
+		}
+	}
+*/
+	return sum;
+}
+
+// calculates the heuristic cost
+// I dont know how to prove admissibility
+int heur3 (vector<int> estado, int n, int m) {
+	vector<int> aux_vect(m, 0);
+	for (unsigned long i = 0; i < estado.size(); i++)
+		aux_vect[estado[i]]++;
+
+	int sum = 0;
+	for (int i = 0; i < m - 1; i++) {
 		if (aux_vect[i] <= 1) {
 			sum += aux_vect[i];
 		} else {
@@ -171,11 +195,30 @@ int heur2 (vector<int> estado, int n, int m) {
 				int quant = min (aux_vect[i], m - 1);
 				sum += quant * val;
 				aux_vect[i] -= quant;
-				val++;
+				val += 2;
 			}
 		}
 	}
-*/
+
+	return sum;
+}
+
+// calculates the heuristic cost
+// idea from: https://pt.linkedin.com/pulse/an%C3%A1lise-de-algoritmos-busca-na-resolu%C3%A7%C3%A3o-da-torre-penido-maia
+int heur4 (vector<int> estado, int n, int m) {
+	vector<int> peso(m, 0);
+	peso[m - 1] = 0;
+	peso[m - 2] = 2;
+
+	for (int i = m - 3; i >= 0; i--) {
+		peso[i] = peso[i+1] * 2;
+	}
+
+	int sum = 0;
+	for (unsigned long i = 0; i < estado.size(); i++) {
+		sum += (i + 1) * peso[estado[i]];
+	}
+	
 	return sum;
 }
 
@@ -271,48 +314,77 @@ void printSolution(vector<pair<int, int> > sol)
 int main (int argc, char * argv[]) {
 
 	int n, m;
-	vector<pair<int, int> > sol;
 	clock_t time_diff;
 
 	n = 10;
 	m = 3;
 
+	printf ("N: %d, M: %d\n", n, m);
+
+	if (m < 3) {
+		printf ("M should be >= 3\n");
+		return 0;
+	}
+
+	vector<pair<int, int> > sol_deterministic;
 	if (m==3) {
 		time_diff = clock();
-		deterministic(0, 2, 1, n, sol);
+		deterministic(0, 2, 1, n, sol_deterministic);
 		time_diff = clock() - time_diff;
 		printf ("Deterministic:\t\t");
 		printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
-		//printSolution(sol);
+		//printSolution(sol_deterministic);
 	}
 
 	time_diff = clock();
-	sol = bfs(n, m);
+	vector<pair<int, int> > sol_bfs = bfs(n, m);
 	time_diff = clock() - time_diff;
 	printf ("Bfs:\t\t\t");
-	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
-	//printSolution(sol);
+	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol_bfs);
+	printf ("sol.size(): %d\n", (int)sol_bfs.size());
 
 	time_diff = clock();
-	sol = aStar (n, m, &heurNull);
+	vector<pair<int, int> > sol_aStar_heurNull = aStar (n, m, &heurNull);
 	time_diff = clock() - time_diff;
 	printf ("aStar (heurNull):\t");
-	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
-	//printSolution(sol);
+	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol_aStar_heurNull);
+	printf ("sol.size(): %d\n", (int)sol_aStar_heurNull.size());
 
 	time_diff = clock();
-	sol = aStar (n, m, &heur1);
+	vector<pair<int, int> > sol_aStar_heur1 = aStar (n, m, &heur1);
 	time_diff = clock() - time_diff;
 	printf ("aStar (heur1):\t\t");
-	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
-	//printSolution(sol);
+	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol_aStar_heur1);
+	printf ("sol.size(): %d\n", (int)sol_aStar_heur1.size());
 
 	time_diff = clock();
-	sol = aStar (n, m, &heur2);
+	vector<pair<int, int> > sol_aStar_heur2 = aStar (n, m, &heur2);
 	time_diff = clock() - time_diff;
 	printf ("aStar (heur2):\t\t");
-	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
-	//printSolution(sol);
+	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol_aStar_heur2);
+	printf ("sol.size(): %d\n", (int)sol_aStar_heur2.size());
+
+	time_diff = clock();
+	vector<pair<int, int> > sol_aStar_heur3 = aStar (n, m, &heur3);
+	time_diff = clock() - time_diff;
+	printf ("aStar (heur3):\t\t");
+	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol_aStar_heur3);
+	printf ("sol.size(): %d\n", (int)sol_aStar_heur3.size());
+
+	time_diff = clock();
+	vector<pair<int, int> > sol_aStar_heur4 = aStar (n, m, &heur4);
+	time_diff = clock() - time_diff;
+	printf ("aStar (heur4):\t\t");
+	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol_aStar_heur4);
+	printf ("sol.size(): %d\n", (int)sol_aStar_heur4.size());
+	
+	printf ("\n");
 
 	return 0;
 }
