@@ -13,13 +13,13 @@ using namespace std;
 
 
 
-//solves hanoi tower for 3 pegs with deterministic solution
-void deterministic (int origin, int destiny, int aux, int quantity, vector<pair<int, int> >& sol) {
+//solves hanoi tower for 3 pegs with recursive solution
+void recursive (int origin, int destiny, int aux, int quantity, vector<pair<int, int> >& sol) {
   if(quantity == 1) sol.push_back(make_pair(origin, destiny));
   else {
-    deterministic(origin, aux, destiny, quantity-1, sol);
-    deterministic(origin, destiny, aux, 1, sol);
-    deterministic(aux, destiny, origin, quantity-1, sol);
+    recursive(origin, aux, destiny, quantity-1, sol);
+    recursive(origin, destiny, aux, 1, sol);
+    recursive(aux, destiny, origin, quantity-1, sol);
   }
 }
 
@@ -399,14 +399,14 @@ int main (int argc, char * argv[]) {
 	}
 
 
-	vector<pair<int, int> > sol_deterministic;
+	vector<pair<int, int> > sol_recursive;
 	if (m==3) {
 		time_diff = clock();
-		deterministic(0, 2, 1, n, sol_deterministic);
+		recursive(0, 2, 1, n, sol_recursive);
 		time_diff = clock() - time_diff;
-		printf ("\tDeterministic:\t\t");
+		printf ("\tRecursive:\t\t");
 		printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
-		//printSolution(sol_deterministic);
+		//printSolution(sol_recursive);
 	}
 
 	time_diff = clock();

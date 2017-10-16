@@ -5,8 +5,8 @@ clean:
 	rm *.o *.out
 
 run:
-	./hanoi.out
+	./hanoi.out 10 3
 
 test:
 	g++ hanoi.cpp -std=c++11 -Wall -Wextra -g -o hanoi.out
-	valgrind --leak-check=full --track-origins=yes ./hanoi.out
+	valgrind --leak-check=full --track-origins=yes ./hanoi.out 10 3
