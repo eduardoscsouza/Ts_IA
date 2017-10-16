@@ -128,9 +128,13 @@ int heur1 (vector<int> estado, int n, int m) {
 
 	// runs faster without it        ????
 	// have to move all discs out of the last peg
-	bool heavier_in_last = (estado[n - 1] == (m - 1));
-	if (!heavier_in_last)
-		sum += (aux_vect[m - 1]) * 2;
+	for (int i = n - 1; i >= 0; i--) {
+		if (estado[i] != m - 1) {
+			sum += (aux_vect[m - 1]) * 2;
+			return sum;
+		}
+		aux_vect[m-1]--;
+	}
 
 	return sum;
 }
