@@ -209,16 +209,39 @@ int heur4 (vector<int> estado, int n, int m) {
 	vector<int> peso(m, 0);
 	peso[m - 1] = 0;
 	peso[m - 2] = 2;
-
-	for (int i = m - 3; i >= 0; i--) {
+	for (int i = m - 3; i >= 0; i--) 
 		peso[i] = peso[i+1] * 2;
-	}
+
+	int sum = 0;
+	for (unsigned long i = 0; i < estado.size(); i++) 
+		sum += (i + 1) * peso[estado[i]];
+	
+	return sum;
+}
+
+// calculates the heuristic cost
+// heur3 + heur4
+int heur5 (vector<int> estado, int n, int m) {
+	vector<int> peso(m, 0), val(m, 1), quant(m, 0);
+	peso[m - 1] = 0;
+	peso[m - 2] = 2;
+	for (int i = m - 3; i >= 0; i--) 
+		peso[i] = peso[i+1] * 2;
 
 	int sum = 0;
 	for (unsigned long i = 0; i < estado.size(); i++) {
-		sum += (i + 1) * peso[estado[i]];
+		sum += (i + 1) * peso[estado[i]] * val[estado[i]];
+		quant[estado[i]]++;
+		if (val[estado[i]] == 1) {
+			quant[estado[i]] = 0;
+			val[estado[i]] = 2;
+		}
+		if (quant[estado[i]] == m - 1) {
+			quant[estado[i]] = 0;
+			val[estado[i]] += 2;
+		}
 	}
-	
+
 	return sum;
 }
 
@@ -299,25 +322,20 @@ vector<pair<int, int> > aStar (int n, int m, function<int(vector<int>, int, int)
 	return sol;
 }
 
-
-
-void printSolution(vector<pair<int, int> > sol)
-{	
+void printSolution(vector<pair<int, int> > sol) {	
 	printf("%lu movements\n", sol.size());
 	for(unsigned i=0; i<sol.size(); i++)
 		printf("%d -> %d\n", sol[i].first, sol[i].second);
 	printf("\n");
 }
 
-
-
 int main (int argc, char * argv[]) {
 
 	int n, m;
 	clock_t time_diff;
 
-	n = 10;
-	m = 3;
+	n = 8;
+	m = 5;
 
 	printf ("N: %d, M: %d\n", n, m);
 
@@ -383,6 +401,15 @@ int main (int argc, char * argv[]) {
 	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol_aStar_heur4);
 	printf ("sol.size(): %d\n", (int)sol_aStar_heur4.size());
+
+	time_diff = clock();
+	vector<pair<int, int> > sol_aStar_heur5 = aStar (n, m, &heur5);
+	time_diff = clock() - time_diff;
+	printf ("aStar (heur5):\t\t");
+	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol_aStar_heur5);
+	printf ("sol.size(): %d\n", (int)sol_aStar_heur5.size());
+	
 	
 	printf ("\n");
 
