@@ -140,6 +140,24 @@ int heur1 (vector<int> estado, int n, int m) {
 }
 
 //calculates the heuristic cost
+int heur_mis3 (vector<int> estado, int n, int m) {
+	vector<int> aux_vect(m, 0);
+
+	for (unsigned long i = 0; i < estado.size(); i++) 
+		aux_vect[estado[i]]++;
+
+	
+	int sum = 0;
+	if (aux_vect[0]) {
+		sum += (1 << (aux_vect[0] - 1));
+	} 
+	
+	sum += max (0, (aux_vect[1] - 1) * 2);
+
+	return sum;
+}
+
+//calculates the heuristic cost
 // not adimissible
 int heur2 (vector<int> estado, int n, int m) {
 	vector<int> aux_vect(m, 0);
@@ -339,7 +357,7 @@ int main (int argc, char * argv[]) {
 	int n, m;
 	clock_t time_diff;
 
-	n = 10;
+	n = 12;
 	m = 3;
 
 	printf ("N: %d, M: %d\n", n, m);
@@ -349,12 +367,13 @@ int main (int argc, char * argv[]) {
 		return 0;
 	}
 
+
 	vector<pair<int, int> > sol_deterministic;
 	if (m==3) {
 		time_diff = clock();
 		deterministic(0, 2, 1, n, sol_deterministic);
 		time_diff = clock() - time_diff;
-		printf ("Deterministic:\t\t");
+		printf ("\tDeterministic:\t\t");
 		printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
 		//printSolution(sol_deterministic);
 	}
@@ -362,15 +381,17 @@ int main (int argc, char * argv[]) {
 	time_diff = clock();
 	vector<pair<int, int> > sol_bfs = bfs(n, m);
 	time_diff = clock() - time_diff;
-	printf ("Bfs:\t\t\t");
+	printf ("\tBfs:\t\t\t");
 	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol_bfs);
 	printf ("sol.size(): %d\n", (int)sol_bfs.size());
 
+	printf ("\nAdmissible:\n\n");
+
 	time_diff = clock();
 	vector<pair<int, int> > sol_aStar_heurNull = aStar (n, m, &heurNull);
 	time_diff = clock() - time_diff;
-	printf ("aStar (heurNull):\t");
+	printf ("\taStar (heurNull):\t");
 	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol_aStar_heurNull);
 	printf ("sol.size(): %d\n", (int)sol_aStar_heurNull.size());
@@ -378,15 +399,27 @@ int main (int argc, char * argv[]) {
 	time_diff = clock();
 	vector<pair<int, int> > sol_aStar_heur1 = aStar (n, m, &heur1);
 	time_diff = clock() - time_diff;
-	printf ("aStar (heur1):\t\t");
+	printf ("\taStar (heur1):\t\t");
 	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol_aStar_heur1);
 	printf ("sol.size(): %d\n", (int)sol_aStar_heur1.size());
 
+	if (m==3) {
+		time_diff = clock();
+		vector<pair<int, int> > sol_aStar_heur_mis3 = aStar (n, m, &heur_mis3);
+		time_diff = clock() - time_diff;
+		printf ("\taStar (heur_mis3):\t");
+		printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
+		//printSolution(sol_aStar_heur_mis3);
+		printf ("sol.size(): %d\n", (int)sol_aStar_heur_mis3.size());
+	}
+
+	printf ("\nNon-admissible:\n\n");
+
 	time_diff = clock();
 	vector<pair<int, int> > sol_aStar_heur2 = aStar (n, m, &heur2);
 	time_diff = clock() - time_diff;
-	printf ("aStar (heur2):\t\t");
+	printf ("\taStar (heur2):\t\t");
 	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol_aStar_heur2);
 	printf ("sol.size(): %d\n", (int)sol_aStar_heur2.size());
@@ -394,7 +427,7 @@ int main (int argc, char * argv[]) {
 	time_diff = clock();
 	vector<pair<int, int> > sol_aStar_heur3 = aStar (n, m, &heur3);
 	time_diff = clock() - time_diff;
-	printf ("aStar (heur3):\t\t");
+	printf ("\taStar (heur3):\t\t");
 	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol_aStar_heur3);
 	printf ("sol.size(): %d\n", (int)sol_aStar_heur3.size());
@@ -402,7 +435,7 @@ int main (int argc, char * argv[]) {
 	time_diff = clock();
 	vector<pair<int, int> > sol_aStar_heur4 = aStar (n, m, &heur4);
 	time_diff = clock() - time_diff;
-	printf ("aStar (heur4):\t\t");
+	printf ("\taStar (heur4):\t\t");
 	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol_aStar_heur4);
 	printf ("sol.size(): %d\n", (int)sol_aStar_heur4.size());
@@ -410,7 +443,7 @@ int main (int argc, char * argv[]) {
 	time_diff = clock();
 	vector<pair<int, int> > sol_aStar_heur5 = aStar (n, m, &heur5);
 	time_diff = clock() - time_diff;
-	printf ("aStar (heur5):\t\t");
+	printf ("\taStar (heur5):\t\t");
 	printf("%lf seconds\t", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol_aStar_heur5);
 	printf ("sol.size(): %d\n", (int)sol_aStar_heur5.size());
