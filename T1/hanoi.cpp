@@ -121,15 +121,60 @@ int heur1 (vector<int> estado, int n, int m) {
 		aux_vect[estado[i]]++;
 
 	int sum = 0;
-	for (int i = 0; i < m - 1; i++)
-		if (aux_vect[i])
-			sum += (aux_vect[i] - 1) * 2;
+	for (int i = 0; i < m - 1; i++) 
+		if (aux_vect[i] <= 1)
+			sum += aux_vect[i];
+		else
+			sum += (aux_vect[i]) * 2;
 
-	// Code runs faster without it        ????
-	/* have to move all discs out of the last peg*/
-/*	bool heavier_in_last = (estado[estado.size() - 1] == m - 1);
-	if (!heavier_in_last and aux_vect[m-1])
-		sum += (aux_vect[m - 1] - 1) * 2;
+	// runs faster without it        ????
+	// have to move all discs out of the last peg
+/*	bool heavier_in_last = (estado[n - 1] == (m - 1));
+	if (!heavier_in_last)
+		sum += (aux_vect[m - 1]) * 2;
+*/
+	return sum;
+}
+
+//calculates the heuristic cost
+int heur2 (vector<int> estado, int n, int m) {
+	vector<int> aux_vect(m, 0);
+	for (unsigned long i = 0; i < estado.size(); i++)
+		aux_vect[estado[i]]++;
+
+	int sum = 0;
+	for (int i = 0; i < m - 1; i++) {
+		if (aux_vect[i] <= 1) {
+			sum += aux_vect[i];
+		} else {
+			int val = 2;
+			while (aux_vect[i]) {
+				int quant = min (aux_vect[i], m - 1);
+				sum += quant * val;
+				aux_vect[i] -= quant;
+				val++;
+			}
+		}
+	}
+
+	// runs faster without it        ????
+	// have to move all discs out of the last peg
+/*
+	bool heavier_in_last = (estado[n - 1] == (m - 1));
+	if (!heavier_in_last) {
+		int i = m - 1;
+		if (aux_vect[i] <= 1) {
+			sum += aux_vect[i];
+		} else {
+			int val = 2;
+			while (aux_vect[i]) {
+				int quant = min (aux_vect[i], m - 1);
+				sum += quant * val;
+				aux_vect[i] -= quant;
+				val++;
+			}
+		}
+	}
 */
 	return sum;
 }
@@ -259,6 +304,13 @@ int main (int argc, char * argv[]) {
 	sol = aStar (n, m, &heur1);
 	time_diff = clock() - time_diff;
 	printf ("aStar (heur1):\t\t");
+	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
+	//printSolution(sol);
+
+	time_diff = clock();
+	sol = aStar (n, m, &heur2);
+	time_diff = clock() - time_diff;
+	printf ("aStar (heur2):\t\t");
 	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol);
 
