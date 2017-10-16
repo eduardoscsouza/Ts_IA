@@ -6,6 +6,7 @@
 
 #include <cstdio>
 #include <ctime>
+#include <cstring>
 #include <cassert>
 
 using namespace std;
@@ -151,14 +152,14 @@ int heur_mis3 (vector<int> estado, int n, int m) {
 	if (aux_vect[0]) {
 		sum += (1 << (aux_vect[0] - 1));
 	} 
-	
+
 	sum += max (0, (aux_vect[1] - 1) * 2);
 
 	return sum;
 }
 
 //calculates the heuristic cost
-// not adimissible
+// not admissible
 int heur2 (vector<int> estado, int n, int m) {
 	vector<int> aux_vect(m, 0);
 	for (unsigned long i = 0; i < estado.size(); i++)
@@ -352,13 +353,43 @@ void printSolution(vector<pair<int, int> > sol) {
 	printf("\n");
 }
 
+int my_atoi (char *str) {
+	int len = strlen(str);
+
+	if (len > 5) {
+		return -1;
+	}
+
+	int ret = 0;
+	for (int i = 0; i < len; i++) {
+		if (str[i] >= '0' and str[i] <= '9') {
+			ret *= 10;
+			ret += str[i] - '0';
+		} else {
+			return -1;
+		}
+	}
+
+	return ret;
+}
+
 int main (int argc, char * argv[]) {
 
 	int n, m;
 	clock_t time_diff;
 
-	n = 12;
-	m = 3;
+	if (argc != 3) {
+		printf ("argv[1]->n, argv[2]->m\n");
+		return 0;
+	}
+
+	n = atoi(argv[1]);
+	m = atoi(argv[2]);
+
+	if (n == -1 or m == -1) {
+		printf ("Invalid args\n");
+		return 0;
+	}
 
 	printf ("N: %d, M: %d\n", n, m);
 
