@@ -116,16 +116,21 @@ int heurNull (vector<int> estado, int n, int m) {
 
 //calculates the heuristic cost
 int heur1 (vector<int> estado, int n, int m) {
-	vector<int> aux_vect(m);
-	for (int i = 0; i < m; i++)
-		aux_vect[i] = 0;
+	vector<int> aux_vect(m, 0);
 	for (unsigned long i = 0; i < estado.size(); i++)
 		aux_vect[estado[i]]++;
 
 	int sum = 0;
-	for (int i = 0; i < m; i++)
-		sum += (aux_vect[i]- 1) * 2;
+	for (int i = 0; i < m - 1; i++)
+		if (aux_vect[i])
+			sum += (aux_vect[i] - 1) * 2;
 
+	// Code runs faster without it        ????
+	/* have to move all discs out of the last peg*/
+/*	bool heavier_in_last = (estado[estado.size() - 1] == m - 1);
+	if (!heavier_in_last and aux_vect[m-1])
+		sum += (aux_vect[m - 1] - 1) * 2;
+*/
 	return sum;
 }
 
@@ -224,13 +229,14 @@ int main (int argc, char * argv[]) {
 	vector<pair<int, int> > sol;
 	clock_t time_diff;
 
-	n = 5;
+	n = 10;
 	m = 3;
 
 	if (m==3) {
 		time_diff = clock();
 		deterministic(0, 2, 1, n, sol);
 		time_diff = clock() - time_diff;
+		printf ("Deterministic:\t\t");
 		printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
 		//printSolution(sol);
 	}
@@ -238,18 +244,21 @@ int main (int argc, char * argv[]) {
 	time_diff = clock();
 	sol = bfs(n, m);
 	time_diff = clock() - time_diff;
+	printf ("Bfs:\t\t\t");
 	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol);
 
 	time_diff = clock();
 	sol = aStar (n, m, &heurNull);
 	time_diff = clock() - time_diff;
+	printf ("aStar (heurNull):\t");
 	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol);
 
 	time_diff = clock();
 	sol = aStar (n, m, &heur1);
 	time_diff = clock() - time_diff;
+	printf ("aStar (heur1):\t\t");
 	printf("%lf seconds\n", (double)time_diff/CLOCKS_PER_SEC);
 	//printSolution(sol);
 
