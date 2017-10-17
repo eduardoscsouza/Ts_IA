@@ -123,13 +123,14 @@ int heur1 (vector<int> estado, int n, int m) {
 
 	for (unsigned long i = 0; i < estado.size(); i++) 
 		aux_vect[estado[i]]++;
-
+	
+	// num of 2*(discs in peg[i] - 1) 
 	for (int i = 0; i < m - 1; i++) 
 			sum += max (0, (aux_vect[i] - 1) * 2 + 1);
 
-	// runs faster without it        ????
-	// have to move all discs out of the last peg
+	// checking last peg
 	for (int i = n - 1; i >= 0; i--) {
+		// check the number of dics out of place in the last peg
 		if (estado[i] != m - 1) {
 			sum += (aux_vect[m - 1]) * 2;
 			return sum;
@@ -141,18 +142,20 @@ int heur1 (vector<int> estado, int n, int m) {
 }
 
 //calculates the heuristic cost
+// heristic m is 3, m == 3
 int heur_mis3 (vector<int> estado, int n, int m) {
 	vector<int> aux_vect(m, 0);
 
 	for (unsigned long i = 0; i < estado.size(); i++) 
 		aux_vect[estado[i]]++;
 
-	
 	int sum = 0;
+	// 2^(number of disc in first peg)
 	if (aux_vect[0]) {
 		sum += (1 << (aux_vect[0] - 1));
 	} 
 
+	// (number of discs in second peg - 1) * 2
 	sum += max (0, (aux_vect[1] - 1) * 2);
 
 	return sum;
@@ -167,9 +170,11 @@ int heur2 (vector<int> estado, int n, int m) {
 
 	int sum = 0;
 	for (int i = 0; i < m - 1; i++) {
+		// if number of discs <= 1, sum += 0 or 1
 		if (aux_vect[i] <= 1) {
 			sum += aux_vect[i];
 		} else {
+			// first m - 1 discs * 2, then second m- 1 discs * 3...
 			int val = 2;
 			while (aux_vect[i]) {
 				int quant = min (aux_vect[i], m - 1);
@@ -180,10 +185,10 @@ int heur2 (vector<int> estado, int n, int m) {
 		}
 	}
 
-	// runs faster without it        ????
+	// if bigger disc is in the last peg return sum
 	if ( estado[n - 1] == (m - 1) )	return sum;
-
-	// have to move all discs out of the last peg
+	
+	// else calculate the heuristic function for the last peg
 	int i = m - 1;
 	if (aux_vect[i] <= 1) {
 		sum += aux_vect[i];
@@ -200,7 +205,8 @@ int heur2 (vector<int> estado, int n, int m) {
 	return sum;
 }
 
-// calculates the heuristic cost
+// calculates the heuristic cost, same thing as heur2, 
+// but val += 2 instead of val++
 // not admissible
 int heur3 (vector<int> estado, int n, int m) {
 	vector<int> aux_vect(m, 0);
@@ -222,6 +228,19 @@ int heur3 (vector<int> estado, int n, int m) {
 		}
 	}
 
+	int i = m - 1;
+	if (aux_vect[i] <= 1) {
+		sum += aux_vect[i];
+	} else {
+		int val = 2;
+		while (aux_vect[i]) {
+			int quant = min (aux_vect[i], m - 1);
+			sum += quant * val;
+			aux_vect[i] -= quant;
+			val += 2;
+		}
+	}
+	
 	return sum;
 }
 
@@ -235,6 +254,16 @@ int heur4 (vector<int> estado, int n, int m) {
 	for (int i = m - 3; i >= 0; i--) 
 		peso[i] = peso[i+1] * 2;
 
+	// weight of a peg:
+	//		if (peg == last)	0
+	//		else 			2**(distance from last peg - 1)
+	
+	// weight of a disc = (index of the disc + 1)
+	
+	// heuristic functions is the sum of the multiplication of
+	// the weights of each disc i in peg j
+	// Sum i * peso[estado[i]]
+	
 	int sum = 0;
 	for (unsigned long i = 0; i < estado.size(); i++) 
 		sum += (i + 1) * peso[estado[i]];
@@ -242,7 +271,8 @@ int heur4 (vector<int> estado, int n, int m) {
 	return sum;
 }
 
-// calculates the heuristic cost
+// calculates the heuristic cost, same as heur3,
+// but now with weights in pegs as in heur4
 // heur3 + heur4
 // not admissible
 int heur5 (vector<int> estado, int n, int m) {
