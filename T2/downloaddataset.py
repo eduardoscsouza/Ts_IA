@@ -90,5 +90,7 @@ else:
 					print("Found " + line[name_idx])
 				if (n_imgs==-3):
 					style_count[line[style_idx]] = style_count[line[style_idx]] - 1
+					if verbose:
+						print (str(style_count[line[style_idx]]) + " remaining to " + line[style_idx])
 			except URLError:
 				print("Error on URL " + line[url_idx])
