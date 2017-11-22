@@ -19,7 +19,6 @@ images, labels = images[shuff], labels[shuff]
 
 folds = int(sys.argv[1])
 fold_size = int(n_images/folds)
-print(images[n_images:n_images])
 for i in range(folds):
 	train_images = np.concatenate((images[0:i*fold_size], images[(i+1)*fold_size:n_images]))
 	train_labels = np.concatenate((labels[0:i*fold_size], labels[(i+1)*fold_size:n_images]))
