@@ -22,7 +22,7 @@ cnn.summary()
 batch_size = 64
 init_time = time.time()
 train_score = cnn.fit(images, labels, epochs=int(sys.argv[1]), batch_size=batch_size, verbose=False)
-print("Train Loss: %.4lf\nTrain Accuracy: %.4lf" % (train_score.history['loss'][0], train_score.history['acc'][0]))
+print("Train Loss: %.4lf\nTrain Accuracy: %.4lf" % (train_score.history['loss'][-1], train_score.history['acc'][-1]))
 print("Time: %ds\n" % (time.time()-init_time))
 
 cnn.save(sys.argv[5])

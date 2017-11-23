@@ -17,6 +17,10 @@ n_images = images.shape[0]
 shuff = np.random.permutation(n_images)
 images, labels = images[shuff], labels[shuff]
 
+images_name = str(os.path.split(sys.argv[2])[-1])
+labels_name = str(os.path.split(sys.argv[3])[-1])
+out_path = sys.argv[4]
+
 folds = int(sys.argv[1])
 fold_size = int(n_images/folds)
 for i in range(folds):
@@ -25,11 +29,13 @@ for i in range(folds):
 	test_images = images[i*fold_size:(i+1)*fold_size]
 	test_labels = labels[i*fold_size:(i+1)*fold_size]
 
-	np.save(os.path.join(sys.argv[4], "fold_" + str(i) + "_train_" + sys.argv[2]), train_images)
-	np.save(os.path.join(sys.argv[4], "fold_" + str(i) + "_train_" + sys.argv[3]), train_labels)
-	np.save(os.path.join(sys.argv[4], "fold_" + str(i) + "_test_" + sys.argv[2]), test_images)
-	np.save(os.path.join(sys.argv[4], "fold_" + str(i) + "_test_" + sys.argv[3]), test_labels)
+	train_path = "fold_" + str(i) + "_train_"
+	test_path = "fold_" + str(i) + "_test_"
+	np.save(os.path.join(out_path, train_path + images_name), train_images)
+	np.save(os.path.join(out_path, train_path + labels_name), train_labels)
+	np.save(os.path.join(out_path, test_path + images_name), test_images)
+	np.save(os.path.join(out_path, test_path + labels_name), test_labels)
 
 	print("Fold " + str(i))
-	print("Train: [0, " + str(i*fold_size) + ") U [" + str((i+1)*fold_size) + ", " + str(n_images) + "); Size: " + str(train_images.shape[0]))
-	print("Test: [" + str(i*fold_size) + ", " + str((i+1)*fold_size) + "); Size: " + str(test_images.shape[0]))
+	print("Train: [0, " + str(i*fold_size) + ") U [" + str((i+1)*fold_size) + ", " + str(n_images) + "); Images Shape: " + str(train_images.shape))
+	print("Test: [" + str(i*fold_size) + ", " + str((i+1)*fold_size) + "); Images Size: " + str(test_images.shape))
