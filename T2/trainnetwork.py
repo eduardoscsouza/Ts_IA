@@ -27,3 +27,5 @@ print("Time: %ds\n" % (time.time()-init_time))
 
 cnn.save(sys.argv[5])
 backend.clear_session()
+images.close()
+labels.close()
